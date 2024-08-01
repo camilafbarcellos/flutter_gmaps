@@ -35,7 +35,17 @@ class MarkersListScreenState extends State<MarkersListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Locais de: ${_user.email}'),
+        title: Row(
+          children: [
+            Icon(
+              Icons.map,
+              color: Colors.white,
+            ),
+            Text('  Locais de: ${_user.email}'),
+          ],
+        ),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        backgroundColor: Color(0xff1A3668),
         actions: [
           IconButton(
             onPressed: () {
@@ -45,13 +55,18 @@ class MarkersListScreenState extends State<MarkersListScreen> {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => AuthScreen()));
             },
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: Colors.white),
+            hoverColor: Color(0xffE01C2F),
           )
         ],
+        automaticallyImplyLeading: false,
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xff1A3668),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        backgroundColor: Color(0xffE01C2F),
         onPressed: () {
           _adicionarLocal();
         },
@@ -62,7 +77,8 @@ class MarkersListScreenState extends State<MarkersListScreen> {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
+              return Center(
+                  child: CircularProgressIndicator(color: Color(0xffE01C2F)));
             default:
               List<DocumentSnapshot> locais = [];
               var querySnapshot = snapshot.data;
