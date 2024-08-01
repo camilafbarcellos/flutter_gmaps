@@ -15,19 +15,19 @@ class SquareTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
         padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white),
+        backgroundColor: Colors.grey[300],
+        side: BorderSide(color: Colors.white),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.grey[300],
         ),
-        child: SvgPicture.asset(
-          imagePath,
-          height: height,
-        ),
+      ),
+      child: SvgPicture.asset(
+        imagePath,
+        height: height,
       ),
     );
   }
