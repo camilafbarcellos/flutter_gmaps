@@ -30,6 +30,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- CHAVE DA API MAPS DO ANDROID -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCvQlmX2jvTmp5BVdf4IZQGa1PmJrlDKiw"/>
     </application>
     <!-- MELHORAR PRECISÃO DA GEOLOCALIZAÇÃO -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
