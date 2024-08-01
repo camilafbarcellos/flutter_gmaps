@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gmaps/screens/auth_screen.dart';
-import '/screens/markers_list_screen.dart';
 import '/components/my_button.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
@@ -40,7 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
       );
       print('Usuário ${userCredential.user!.email} logado!');
       //pop the loading circle
-      Navigator.pop(context);
+      // Navigator.pop(context);
       // go to home screen
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => AuthScreen()));
