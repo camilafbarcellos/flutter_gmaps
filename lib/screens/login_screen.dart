@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gmaps/screens/home_screen.dart';
+import '/screens/home_screen.dart';
+import '/screens/markers_list_screen.dart';
 import '/components/my_buttom.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
@@ -41,8 +42,8 @@ class LoginScreenState extends State<LoginScreen> {
       //pop the loading circle
       Navigator.pop(context);
       // go to home screen
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => MarkersListScreen()));
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
@@ -50,7 +51,7 @@ class LoginScreenState extends State<LoginScreen> {
       if (e.code == 'invalid-credential') {
         genericErrorMessage('Credenciais inválidas, tente novamente!');
       } else if (e.code == 'invalid-email') {
-        genericErrorMessage('Informe um email nválido!');
+        genericErrorMessage('Informe um email válido!');
       } else if (e.code == 'user-not-found') {
         genericErrorMessage('Email não encontrado, efetue o registro!');
       } else if (e.code == 'wrong-password') {
@@ -63,23 +64,8 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void genericErrorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Erro'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -146,7 +132,7 @@ class LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: Text(
-                          'OR',
+                          'OU',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ),

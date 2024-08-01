@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gmaps/screens/auth_screen.dart';
+import '/screens/markers_list_screen.dart';
+import '/screens/auth_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -11,6 +12,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xff1A3668),
+        title: Text('Usuário: ${_user.email!}'),
         actions: [
           IconButton(
             onPressed: () {
@@ -24,7 +27,7 @@ class HomeScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Center(child: Text("Logado como: " + _user.email!)),
+      body: MarkersListScreen(),
     );
   }
 }

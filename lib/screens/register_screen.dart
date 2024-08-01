@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gmaps/screens/home_screen.dart';
+import '/screens/home_screen.dart';
+import '/screens/markers_list_screen.dart';
 import '/components/my_buttom.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
@@ -46,8 +47,8 @@ class RegisterScreenState extends State<RegisterScreen> {
         // pop the loading circle
         Navigator.pop(context);
         // go to home screen
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => MarkersListScreen()));
       } else {
         // pop the loading circle
         Navigator.pop(context);
@@ -60,6 +61,8 @@ class RegisterScreenState extends State<RegisterScreen> {
       // show errors messsages
       if (e.code == 'weak-password') {
         genericErrorMessage('A senha é muito fraca, tente novamente!');
+      } else if (e.code == 'invalid-email') {
+        genericErrorMessage('Informe um email válido!');
       } else if (e.code == 'email-already-in-use') {
         genericErrorMessage('Email já cadastrado, efetue o login!');
       } else {
@@ -70,23 +73,8 @@ class RegisterScreenState extends State<RegisterScreen> {
   }
 
   void genericErrorMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Erro'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -161,7 +149,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: Text(
-                          'OR',
+                          'OU',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ),
