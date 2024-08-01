@@ -31,7 +31,7 @@ class MyButtonState extends State<MyButton> {
         padding: const EdgeInsets.all(18),
         margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Color(0xff1A3668),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Center(

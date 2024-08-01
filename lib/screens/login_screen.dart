@@ -47,8 +47,12 @@ class LoginScreenState extends State<LoginScreen> {
       // pop the loading circle
       Navigator.pop(context);
       // show errors messsages
-      if (e.code == 'user-not-found') {
-        genericErrorMessage('Email nao encontrado, efetue o registro!');
+      if (e.code == 'invalid-credential') {
+        genericErrorMessage('Credenciais inválidas, tente novamente!');
+      } else if (e.code == 'invalid-email') {
+        genericErrorMessage('Informe um email nválido!');
+      } else if (e.code == 'user-not-found') {
+        genericErrorMessage('Email não encontrado, efetue o registro!');
       } else if (e.code == 'wrong-password') {
         genericErrorMessage('Senha incorreta, tente novamente!');
       } else {
@@ -91,16 +95,16 @@ class LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 50),
-                const Icon(
-                  Icons.lock_person,
-                  size: 100,
+                SizedBox(
+                  height: 200,
+                  child: Image.asset('lib/logos/remax.png'),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Olá, efetue o login para continuar. ',
                   style: TextStyle(
                     color: Colors.grey[700],
-                    fontSize: 15,
+                    fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -184,7 +188,7 @@ class LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Registre-se',
                         style: TextStyle(
-                            color: Colors.blue[900],
+                            color: Color(0xffE01C2F),
                             fontWeight: FontWeight.bold,
                             fontSize: 12),
                       ),

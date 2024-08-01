@@ -102,16 +102,16 @@ class RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 50),
-                const Icon(
-                  Icons.lock,
-                  size: 100,
+                SizedBox(
+                  height: 200,
+                  child: Image.asset('lib/logos/remax.png'),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Por favor, preenchar os seus dados para continuar. ',
                   style: TextStyle(
                     color: Colors.grey[700],
-                    fontSize: 15,
+                    fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -202,7 +202,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                       child: Text(
                         'Faça login',
                         style: TextStyle(
-                            color: Colors.blue[900],
+                            color: Color(0xffE01C2F),
                             fontWeight: FontWeight.bold,
                             fontSize: 12),
                       ),
