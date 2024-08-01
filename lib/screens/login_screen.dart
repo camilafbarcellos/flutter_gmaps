@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '/screens/home_screen.dart';
+import 'package:flutter_gmaps/screens/auth_screen.dart';
 import '/screens/markers_list_screen.dart';
-import '/components/my_buttom.dart';
+import '/components/my_button.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
 import '/services/auth_service.dart';
@@ -29,7 +29,7 @@ class LoginScreenState extends State<LoginScreen> {
         context: context,
         builder: (context) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Color(0xffE01C2F)),
           );
         });
 
@@ -42,8 +42,8 @@ class LoginScreenState extends State<LoginScreen> {
       //pop the loading circle
       Navigator.pop(context);
       // go to home screen
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => MarkersListScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => AuthScreen()));
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
@@ -112,7 +112,7 @@ class LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 15),
 
                 MyButton(
-                  onTap: _handleSignIn,
+                  onPressed: _handleSignIn,
                   formKey: _formKey,
                   text: 'Logar-se',
                 ),

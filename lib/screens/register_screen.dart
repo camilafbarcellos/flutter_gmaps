@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '/screens/home_screen.dart';
+import 'package:flutter_gmaps/screens/auth_screen.dart';
 import '/screens/markers_list_screen.dart';
-import '/components/my_buttom.dart';
+import '/components/my_button.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
 import '../services/auth_service.dart';
@@ -31,7 +31,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         context: context,
         builder: (context) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Color(0xffE01C2F)),
           );
         });
 
@@ -47,8 +47,8 @@ class RegisterScreenState extends State<RegisterScreen> {
         // pop the loading circle
         Navigator.pop(context);
         // go to home screen
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => MarkersListScreen()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AuthScreen()));
       } else {
         // pop the loading circle
         Navigator.pop(context);
@@ -129,7 +129,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 15),
 
                 MyButton(
-                  onTap: _handleSignUp,
+                  onPressed: _handleSignUp,
                   formKey: _formKey,
                   text: 'Registrar-se',
                 ),
