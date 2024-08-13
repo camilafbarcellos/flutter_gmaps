@@ -120,7 +120,15 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                                   Text(
                                       '${item['cidade']}, ${item['estado']} - ${item['pais']}'),
                                   if (item['observacao'].isNotEmpty)
-                                    Text('Obs.: ${item['observacao']}')
+                                    Text('Obs.: ${item['observacao']}'),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.person_outline),
+                                      Text('${item['corretor']}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  )
                                 ],
                               ),
                               trailing: Row(
@@ -193,6 +201,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       icon: Icon(Icons.edit_road),
                     ),
                     controller: _controladorNumero,
+                    keyboardType: TextInputType.number,
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
@@ -200,6 +209,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       icon: Icon(Icons.apartment),
                     ),
                     controller: _controladorPredio,
+                    textCapitalization: TextCapitalization.sentences,
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
@@ -207,6 +217,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       icon: Icon(Icons.numbers),
                     ),
                     controller: _controladorApartamento,
+                    keyboardType: TextInputType.streetAddress,
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
@@ -214,6 +225,10 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       icon: Icon(Icons.lightbulb),
                     ),
                     controller: _controladorObs,
+                    keyboardType: TextInputType.multiline,
+                    minLines: 2,
+                    maxLines: 5,
+                    textCapitalization: TextCapitalization.sentences,
                   ),
                 ],
               ),
