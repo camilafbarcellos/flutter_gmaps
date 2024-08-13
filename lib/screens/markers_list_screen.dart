@@ -35,15 +35,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(
-              Icons.map,
-              color: Colors.white,
-            ),
-            Text('  Locais de: ${_user.email}'),
-          ],
-        ),
+        title: Text('Seus locais'),
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
         backgroundColor: Color(0xff1A3668),
         actions: [
@@ -56,7 +48,6 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                   MaterialPageRoute(builder: (context) => AuthScreen()));
             },
             icon: Icon(Icons.logout, color: Colors.white),
-            hoverColor: Color(0xffE01C2F),
           )
         ],
         automaticallyImplyLeading: false,
@@ -78,7 +69,8 @@ class MarkersListScreenState extends State<MarkersListScreen> {
             case ConnectionState.none:
             case ConnectionState.waiting:
               return Center(
-                  child: CircularProgressIndicator(color: Color(0xffE01C2F)));
+                child: CircularProgressIndicator(color: Color(0xffE01C2F)),
+              );
             default:
               List<DocumentSnapshot> locais = [];
               var querySnapshot = snapshot.data;
@@ -106,7 +98,8 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                                 children: <Widget>[
                                   GestureDetector(
                                     onTap: () {
-                                      _excluirLocal(idLocal);
+                                      // janela de confirmação
+                                      confirmationAlert(context, idLocal);
                                     },
                                     child: Padding(
                                       padding: EdgeInsets.all(8),
@@ -129,6 +122,37 @@ class MarkersListScreenState extends State<MarkersListScreen> {
           }
         },
       ),
+    );
+  }
+
+  confirmationAlert(BuildContext context, String idLocal) {
+    Widget cancelButton = TextButton(
+      child: Text("Cancelar"),
+      onPressed: () {
+        // fechar a janela de diálogo
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text("Confirmar"),
+      onPressed: () {
+        _excluirLocal(idLocal);
+        // fechar a janela de diálogo
+        Navigator.pop(context);
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Confirmação"),
+      content: Text("Você tem certeza que deseja excluir este local?"),
+      actions: [cancelButton, continueButton],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }
