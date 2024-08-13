@@ -175,6 +175,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
 
   editFormPopup(BuildContext context, String idLocal) async {
     DocumentSnapshot document = await _locais.doc(idLocal).get();
+    final _formKey = GlobalKey<FormState>();
     final TextEditingController _controladorNumero =
         TextEditingController(text: document['numero']);
     final TextEditingController _controladorPredio =
@@ -193,6 +194,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
           content: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Form(
+              key: _formKey,
               child: Column(
                 children: [
                   TextFormField(
@@ -202,6 +204,12 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                     ),
                     controller: _controladorNumero,
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informação exigida!';
+                      }
+                      return null;
+                    },
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
@@ -251,17 +259,19 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                 backgroundColor: Color(0xff1A3668),
               ),
               onPressed: () {
-                // Cria um mapa com os dados editados
-                Map<String, dynamic> localMap = {
-                  'numero': _controladorNumero.text,
-                  'predio': _controladorPredio.text,
-                  'apartamento': _controladorApartamento.text,
-                  'observacao': _controladorObs.text,
-                };
-                // Atualiza o documento no Firebase
-                _atualizarLocal(idLocal, localMap);
-                // Fechar a janela de diálogo
-                Navigator.pop(context);
+                if (_formKey.currentState!.validate()) {
+                  // Cria um mapa com os dados editados
+                  Map<String, dynamic> localMap = {
+                    'numero': _controladorNumero.text,
+                    'predio': _controladorPredio.text,
+                    'apartamento': _controladorApartamento.text,
+                    'observacao': _controladorObs.text,
+                  };
+                  // Atualiza o documento no Firebase
+                  _atualizarLocal(idLocal, localMap);
+                  // Fechar a janela de diálogo
+                  Navigator.pop(context);
+                }
               },
             ),
           ],
