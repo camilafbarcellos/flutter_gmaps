@@ -82,7 +82,7 @@ class MapScreenState extends State<MapScreen> {
 
     // gravar no Firestore
     Map<String, dynamic> local = Map();
-    local['titulo'] = rua;
+    local['rua'] = rua;
     local['latitude'] = latLng.latitude;
     local['longitude'] = latLng.longitude;
     _locais.add(local);
@@ -124,8 +124,8 @@ class MapScreenState extends State<MapScreen> {
   mostrarLocal(String? idLocal) async {
     // captura documento com base no id
     DocumentSnapshot local = await _locais.doc(idLocal).get();
-    // captura o titulo (rua)
-    String titulo = local.get('titulo');
+    // captura o rua (rua)
+    String rua = local.get('rua');
     // cria um objeto LatLong com base na lat e long
     LatLng latLng = LatLng(local.get('latitude'), local.get('longitude'));
     // cria um marcador
@@ -133,7 +133,7 @@ class MapScreenState extends State<MapScreen> {
       Marker marcador = Marker(
         markerId: MarkerId('marcador=${latLng.latitude}-${latLng.longitude}'),
         position: latLng,
-        infoWindow: InfoWindow(title: titulo),
+        infoWindow: InfoWindow(title: rua),
       );
       // adiciona a lista de marcadores
       _marcadores.add(marcador);

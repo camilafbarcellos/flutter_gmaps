@@ -84,7 +84,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       itemCount: locais.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot item = locais[index];
-                        String titulo = item['titulo'];
+                        String rua = item['rua'];
                         String idLocal = item.id;
                         return GestureDetector(
                           onTap: () {
@@ -92,7 +92,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                           },
                           child: Card(
                             child: ListTile(
-                              title: Text(titulo),
+                              title: Text(rua),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
