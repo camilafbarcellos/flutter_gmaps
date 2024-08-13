@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '/screens/auth_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding_resolver/geocoding_resolver.dart';
@@ -15,6 +16,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class MapScreenState extends State<MapScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _user = FirebaseAuth.instance.currentUser!;
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -88,6 +91,22 @@ class MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xff1A3668),
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            onPressed: () {
+              _auth.signOut();
+              print('Usuário ${_user.email} deslogado!');
+              // go to login
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AuthScreen()));
+            },
+            icon: Icon(Icons.logout, color: Colors.white),
+          )
+        ],
+      ),
       body: GoogleMap(
         mapType: MapType.hybrid,
         initialCameraPosition: _posicaoCamera,
