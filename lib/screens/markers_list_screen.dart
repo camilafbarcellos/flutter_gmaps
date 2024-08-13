@@ -17,14 +17,14 @@ class MarkersListScreenState extends State<MarkersListScreen> {
   final _user = FirebaseAuth.instance.currentUser!;
   final CollectionReference _locais =
       FirebaseFirestore.instance.collection('locais');
+  String? _filtroCorretor;
+  String? _filtroPredio;
+  String? _filtroBairro;
+  String? _filtroCidade;
 
   _abrirMapa(String idLocal) {
     Navigator.push(context,
         MaterialPageRoute(builder: (_) => MapScreen(idLocal: idLocal)));
-  }
-
-  _adicionarLocal() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => MapScreen()));
   }
 
   _excluirLocal(String idLocal) {
@@ -47,7 +47,6 @@ class MarkersListScreenState extends State<MarkersListScreen> {
             onPressed: () {
               _auth.signOut();
               print('Usuário ${_user.email} deslogado!');
-              // go to login
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => AuthScreen()));
             },
@@ -58,12 +57,12 @@ class MarkersListScreenState extends State<MarkersListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(
-          Icons.add,
+          Icons.filter_list,
           color: Colors.white,
         ),
         backgroundColor: Color(0xffE01C2F),
         onPressed: () {
-          _adicionarLocal();
+          filterFormPopup();
         },
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -79,7 +78,34 @@ class MarkersListScreenState extends State<MarkersListScreen> {
               List<DocumentSnapshot> locais = [];
               var querySnapshot = snapshot.data;
               if (querySnapshot != null) {
-                locais = querySnapshot.docs.toList();
+                locais = querySnapshot.docs.where((DocumentSnapshot doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final corretor = data['corretor'] as String?;
+                  final predio = data['predio'] as String?;
+                  final bairro = data['bairro'] as String?;
+                  final cidade = data['cidade'] as String?;
+
+                  return (_filtroCorretor == null ||
+                          corretor != null &&
+                              corretor
+                                  .toLowerCase()
+                                  .contains(_filtroCorretor!.toLowerCase())) &&
+                      (_filtroPredio == null ||
+                          predio != null &&
+                              predio
+                                  .toLowerCase()
+                                  .contains(_filtroPredio!.toLowerCase())) &&
+                      (_filtroBairro == null ||
+                          bairro != null &&
+                              bairro
+                                  .toLowerCase()
+                                  .contains(_filtroBairro!.toLowerCase())) &&
+                      (_filtroCidade == null ||
+                          cidade != null &&
+                              cidade
+                                  .toLowerCase()
+                                  .contains(_filtroCidade!.toLowerCase()));
+                }).toList();
               }
               return Column(
                 children: <Widget>[
@@ -136,7 +162,6 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                                 children: <Widget>[
                                   GestureDetector(
                                     onTap: () {
-                                      // janela de edição
                                       editFormPopup(context, idLocal);
                                     },
                                     child: Padding(
@@ -146,7 +171,6 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      // janela de confirmação
                                       confirmationAlert(context, idLocal);
                                     },
                                     child: Padding(
@@ -170,6 +194,104 @@ class MarkersListScreenState extends State<MarkersListScreen> {
           }
         },
       ),
+    );
+  }
+
+  filterFormPopup() async {
+    final TextEditingController _controladorCorretor =
+        TextEditingController(text: _filtroCorretor);
+    final TextEditingController _controladorPredio =
+        TextEditingController(text: _filtroPredio);
+    final TextEditingController _controladorBairro =
+        TextEditingController(text: _filtroBairro);
+    final TextEditingController _controladorCidade =
+        TextEditingController(text: _filtroCidade);
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Filtrar"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _controladorCorretor,
+                decoration: InputDecoration(
+                  labelText: "Corretor",
+                  icon: Icon(Icons.person_outline),
+                ),
+              ),
+              TextField(
+                controller: _controladorPredio,
+                decoration: InputDecoration(
+                  labelText: "Prédio",
+                  icon: Icon(Icons.apartment),
+                ),
+              ),
+              TextField(
+                controller: _controladorBairro,
+                decoration: InputDecoration(
+                  labelText: "Bairro",
+                  icon: Icon(Icons.maps_home_work),
+                ),
+              ),
+              TextField(
+                controller: _controladorCidade,
+                decoration: InputDecoration(
+                  labelText: "Cidade",
+                  icon: Icon(Icons.location_city),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text("Resetar"),
+              onPressed: () {
+                // Reseta os filtros
+                _controladorCorretor.clear();
+                _controladorPredio.clear();
+                _controladorBairro.clear();
+                _controladorCidade.clear();
+                setState(() {
+                  _filtroCorretor = null;
+                  _filtroPredio = null;
+                  _filtroBairro = null;
+                  _filtroCidade = null;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                "Aplicar",
+                style: const TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff1A3668),
+              ),
+              onPressed: () {
+                setState(() {
+                  _filtroCorretor = _controladorCorretor.text.isEmpty
+                      ? null
+                      : _controladorCorretor.text;
+                  _filtroPredio = _controladorPredio.text.isEmpty
+                      ? null
+                      : _controladorPredio.text;
+                  _filtroBairro = _controladorBairro.text.isEmpty
+                      ? null
+                      : _controladorBairro.text;
+                  _filtroCidade = _controladorCidade.text.isEmpty
+                      ? null
+                      : _controladorCidade.text;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
