@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gmaps/screens/markers_list_screen.dart';
+import 'menu.dart';
 import 'login_or_register_toggle.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class AuthScreenState extends State<AuthScreen> {
         builder: (context, snapshot) {
           // user logged in
           if (snapshot.hasData) {
-            return MarkersListScreen();
+            return NavigationOptions();
           }
           //user not logged in
           else {
