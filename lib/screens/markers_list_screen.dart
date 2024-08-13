@@ -31,6 +31,10 @@ class MarkersListScreenState extends State<MarkersListScreen> {
     _locais.doc(idLocal).delete();
   }
 
+  _atualizarLocal(String idLocal, Map<String, dynamic> localMap) {
+    _locais.doc(idLocal).update(localMap);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +88,6 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                       itemCount: locais.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot item = locais[index];
-                        String rua = item['rua'];
                         String idLocal = item.id;
                         return GestureDetector(
                           onTap: () {
@@ -92,10 +95,47 @@ class MarkersListScreenState extends State<MarkersListScreen> {
                           },
                           child: Card(
                             child: ListTile(
-                              title: Text(rua),
+                              leading: item['predio'].isEmpty
+                                  ? Icon(Icons.house)
+                                  : Icon(Icons.apartment),
+                              title: item['predio'].isEmpty
+                                  ? Text(
+                                      '${item['rua']}, ${item['numero']}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    )
+                                  : Text(
+                                      '${item['predio']}, apto. N.º ${item['apartamento']}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('${item['rua']}, ${item['numero']}'),
+                                  Text('Bairro: ${item['bairro']}'),
+                                  Text('CEP: ${item['cep']}'),
+                                  Text(
+                                      '${item['cidade']}, ${item['estado']} - ${item['pais']}'),
+                                  if (item['observacao'].isNotEmpty)
+                                    Text('Obs.: ${item['observacao']}')
+                                ],
+                              ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () {
+                                      // janela de edição
+                                      editFormPopup(context, idLocal);
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Icon(Icons.edit),
+                                    ),
+                                  ),
                                   GestureDetector(
                                     onTap: () {
                                       // janela de confirmação
@@ -125,33 +165,128 @@ class MarkersListScreenState extends State<MarkersListScreen> {
     );
   }
 
+  editFormPopup(BuildContext context, String idLocal) async {
+    DocumentSnapshot document = await _locais.doc(idLocal).get();
+    final TextEditingController _controladorNumero =
+        TextEditingController(text: document['numero']);
+    final TextEditingController _controladorPredio =
+        TextEditingController(text: document['predio']);
+    final TextEditingController _controladorApartamento =
+        TextEditingController(text: document['apartamento']);
+    final TextEditingController _controladorObs =
+        TextEditingController(text: document['observacao']);
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          scrollable: true,
+          title: Text("Edição"),
+          content: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Form(
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Núm. da rua",
+                      icon: Icon(Icons.edit_road),
+                    ),
+                    controller: _controladorNumero,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Prédio",
+                      icon: Icon(Icons.apartment),
+                    ),
+                    controller: _controladorPredio,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Núm. do apartamento",
+                      icon: Icon(Icons.numbers),
+                    ),
+                    controller: _controladorApartamento,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Observação",
+                      icon: Icon(Icons.lightbulb),
+                    ),
+                    controller: _controladorObs,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancelar"),
+              onPressed: () {
+                // fechar a janela de diálogo
+                Navigator.pop(context);
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                "Salvar",
+                style: const TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff1A3668),
+              ),
+              onPressed: () {
+                // Cria um mapa com os dados editados
+                Map<String, dynamic> localMap = {
+                  'numero': _controladorNumero.text,
+                  'predio': _controladorPredio.text,
+                  'apartamento': _controladorApartamento.text,
+                  'observacao': _controladorObs.text,
+                };
+                // Atualiza o documento no Firebase
+                _atualizarLocal(idLocal, localMap);
+                // Fechar a janela de diálogo
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   confirmationAlert(BuildContext context, String idLocal) {
-    Widget cancelButton = TextButton(
-      child: Text("Cancelar"),
-      onPressed: () {
-        // fechar a janela de diálogo
-        Navigator.pop(context);
-      },
-    );
-    Widget continueButton = TextButton(
-      child: Text("Confirmar"),
-      onPressed: () {
-        _excluirLocal(idLocal);
-        // fechar a janela de diálogo
-        Navigator.pop(context);
-      },
-    );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("Confirmação"),
-      content: Text("Você tem certeza que deseja excluir este local?"),
-      actions: [cancelButton, continueButton],
-    );
-    // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return AlertDialog(
+          title: Text("Exclusão"),
+          content: Text("Você tem certeza que deseja excluir este local?"),
+          actions: [
+            TextButton(
+              child: Text("Cancelar"),
+              onPressed: () {
+                // fechar a janela de diálogo
+                Navigator.pop(context);
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                "Confirmar",
+                style: const TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff1A3668),
+              ),
+              onPressed: () {
+                // Deleta o documento no Firebase
+                _excluirLocal(idLocal);
+                // fechar a janela de diálogo
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
       },
     );
   }

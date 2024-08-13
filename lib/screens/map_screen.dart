@@ -67,14 +67,19 @@ class MapScreenState extends State<MapScreen> {
     Address address = await geoCoder.getAddressFromLatLng(
         latitude: latLng.latitude, longitude: latLng.longitude);
 
-    // pegar rua
+    // pegar infos
     String rua = address.addressDetails.road;
+    String numero = address.addressDetails.houseNumber;
+    String bairro = address.addressDetails.neighbourhood;
+    String cidade = address.addressDetails.city;
+    String estado = address.addressDetails.state;
+    String cep = address.addressDetails.postcode;
 
     // criar marcador
     Marker marcador = Marker(
       markerId: MarkerId("marcador-${latLng.latitude}=${latLng.longitude}"),
       position: latLng,
-      infoWindow: InfoWindow(title: rua),
+      infoWindow: InfoWindow(title: '${rua}, ${numero}'),
     );
     setState(() {
       _marcadores.add(marcador);
@@ -83,6 +88,14 @@ class MapScreenState extends State<MapScreen> {
     // gravar no Firestore
     Map<String, dynamic> local = Map();
     local['rua'] = rua;
+    local['numero'] = numero;
+    local['bairro'] = bairro;
+    local['cidade'] = cidade;
+    local['estado'] = estado;
+    local['cep'] = cep;
+    local['observacao'] = null;
+    local['predio'] = null;
+    local['apartamento'] = null;
     local['latitude'] = latLng.latitude;
     local['longitude'] = latLng.longitude;
     _locais.add(local);
@@ -124,8 +137,9 @@ class MapScreenState extends State<MapScreen> {
   mostrarLocal(String? idLocal) async {
     // captura documento com base no id
     DocumentSnapshot local = await _locais.doc(idLocal).get();
-    // captura o rua (rua)
+    // captura a rua e numero
     String rua = local.get('rua');
+    String numero = local.get('numero');
     // cria um objeto LatLong com base na lat e long
     LatLng latLng = LatLng(local.get('latitude'), local.get('longitude'));
     // cria um marcador
@@ -133,12 +147,12 @@ class MapScreenState extends State<MapScreen> {
       Marker marcador = Marker(
         markerId: MarkerId('marcador=${latLng.latitude}-${latLng.longitude}'),
         position: latLng,
-        infoWindow: InfoWindow(title: rua),
+        infoWindow: InfoWindow(title: '${rua}, ${numero}'),
       );
       // adiciona a lista de marcadores
       _marcadores.add(marcador);
       // posiciona a câmera
-      _posicaoCamera = CameraPosition(target: latLng, zoom: 15);
+      _posicaoCamera = CameraPosition(target: latLng, zoom: 50);
       // movimenta a câmera para a posição
       _movimentarCamera();
     });
