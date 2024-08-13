@@ -1,22 +1,45 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  //Google sign in
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Google sign in
   signInWithGoogle() async {
-    //begin interactive sign in process
-    final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+    if (kIsWeb) {
+      //WEB
+      GoogleAuthProvider authProvider = GoogleAuthProvider();
+      try {
+        // pop-up de login Google para receber a credencial (dados) do usuário
+        return await _auth.signInWithPopup(authProvider);
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      //ANDROID
+      // página de login da conta Google
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
 
-    //obtain auth details from request
-    final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+      // verifica se a conta Google foi logada (!= de null) e recupera a autenticação
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
 
-    //create new credentials for user
-    final credential = GoogleAuthProvider.credential(
-      accessToken: gAuth.accessToken,
-      idToken: gAuth.idToken,
-    );
+        // cria uma credencial com a autenticação obtida
+        final AuthCredential credential = GoogleAuthProvider.credential(
+            accessToken: googleSignInAuthentication.accessToken,
+            idToken: googleSignInAuthentication.idToken);
 
-    //sign in!
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+        try {
+          // a partir da credencial criada, recupera os dados do usuário
+          return await _auth.signInWithCredential(credential);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
   }
 }
