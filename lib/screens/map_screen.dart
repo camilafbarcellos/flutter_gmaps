@@ -38,10 +38,6 @@ class MapScreenState extends State<MapScreen> {
 
   // captura localização atual do usuário
   getLocation() async {
-    // testar login de usuário
-    print('TESTE USER');
-    User? user = await FirebaseAuth.instance.currentUser!;
-    if (user != null) print(user!.displayName);
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       await Geolocator.requestPermission();
@@ -49,16 +45,41 @@ class MapScreenState extends State<MapScreen> {
     } else if (permission == LocationPermission.deniedForever) {
       await Geolocator.openLocationSettings();
       return;
-    } else {
-      final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      _posicaoCamera = CameraPosition(
-          target: LatLng(position.latitude, position.longitude), zoom: 15);
-      _movimentarCamera();
-      print("latitude = ${position.latitude}");
-      print("longitude = ${position.longitude}");
-      //_addMarcador(LatLng(position.latitude, position.longitude)); // marca a posição no mapa
     }
+
+    // captura a localização atual do usuário
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    LatLng currentLatLng = LatLng(position.latitude, position.longitude);
+
+    // capturar endereço
+    Address currentAddress = await geoCoder.getAddressFromLatLng(
+        latitude: currentLatLng.latitude, longitude: currentLatLng.longitude);
+
+    // atualiza a posição da câmera para a localização atual
+    _posicaoCamera = CameraPosition(target: currentLatLng, zoom: 15);
+    _movimentarCamera();
+
+    // Adiciona um marcador na localização atual
+    Marker currentLocationMarker = Marker(
+      markerId: MarkerId('currentLocation'),
+      position: currentLatLng,
+      onTap: () => {
+        // zoom na localização atual
+        _posicaoCamera = CameraPosition(target: currentLatLng, zoom: 17),
+        _movimentarCamera()
+      },
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      infoWindow: InfoWindow(
+        title: 'Sua localização atual',
+        snippet: '${currentAddress.addressDetails.road} ' +
+            '- ${currentAddress.addressDetails.neighbourhood}, ' +
+            '${currentAddress.addressDetails.postcode}',
+      ),
+    );
+    setState(() {
+      _marcadores.add(currentLocationMarker);
+    });
   }
 
   // captura endereço do marcador e salva no Firestore
@@ -75,11 +96,18 @@ class MapScreenState extends State<MapScreen> {
     String estado = address.addressDetails.state;
     String cep = address.addressDetails.postcode;
 
+    // info do corretor
+    String? corretor = _user.displayName;
+
     // criar marcador
     Marker marcador = Marker(
       markerId: MarkerId("marcador-${latLng.latitude}=${latLng.longitude}"),
       position: latLng,
-      infoWindow: InfoWindow(title: '${rua}, ${numero}'),
+      infoWindow: InfoWindow(
+        title: '$rua, $numero',
+        snippet: '$bairro, $cidade - $estado, $cep' +
+            '\nPrezado $corretor, acesse a lista para editar o seu marcador!',
+      ),
     );
     setState(() {
       _marcadores.add(marcador);
@@ -87,18 +115,85 @@ class MapScreenState extends State<MapScreen> {
 
     // gravar no Firestore
     Map<String, dynamic> local = Map();
+    local['corretor'] = _user.displayName;
     local['rua'] = rua;
     local['numero'] = numero;
     local['bairro'] = bairro;
     local['cidade'] = cidade;
     local['estado'] = estado;
     local['cep'] = cep;
-    local['observacao'] = null;
-    local['predio'] = null;
-    local['apartamento'] = null;
+    local['observacao'] = '';
+    local['predio'] = '';
+    local['apartamento'] = '';
     local['latitude'] = latLng.latitude;
     local['longitude'] = latLng.longitude;
     _locais.add(local);
+  }
+
+  // Carrega marcadores a partir do Firestore
+  carregarMarcadores() async {
+    QuerySnapshot snapshot = await _locais.get();
+    List<DocumentSnapshot> locais = snapshot.docs;
+
+    Set<Marker> marcadoresTemp = {};
+
+    for (var doc in locais) {
+      LatLng latLng = LatLng(doc.get('latitude'), doc.get('longitude'));
+      String title;
+      String snippet;
+      // pegar infos
+      String corretor = doc.get('corretor');
+      String predio = doc.get('predio');
+      String apartamento = doc.get('apartamento');
+      String rua = doc.get('rua');
+      String numero = doc.get('numero');
+      String bairro = doc.get('bairro');
+      String cidade = doc.get('cidade');
+      String estado = doc.get('estado');
+      String cep = doc.get('cep');
+      String observacao = doc.get('observacao');
+
+      if (predio.isEmpty) {
+        title = '$rua, $numero';
+        snippet = '$bairro, $cidade - $estado, $cep';
+      } else {
+        title = '$predio, apto. N.º $apartamento';
+        snippet = '$rua, $numero - $bairro, $cidade - $estado, $cep';
+        if (observacao.isNotEmpty) {
+          snippet += '\nObs.: $observacao';
+        }
+      }
+      snippet += '\nCorretor: $corretor';
+
+      Marker marcador = Marker(
+        markerId: MarkerId(doc.id),
+        position: latLng,
+        onTap: () => {
+          // zoom na localização do marcador
+          _posicaoCamera = CameraPosition(target: latLng, zoom: 17),
+          _movimentarCamera()
+        },
+        infoWindow: InfoWindow(
+          title: title,
+          snippet: snippet,
+        ),
+      );
+      marcadoresTemp.add(marcador);
+    }
+
+    setState(() {
+      _marcadores = marcadoresTemp;
+    });
+  }
+
+  // método para mostrar o local gravado no Firestore
+  mostrarLocal(String? idLocal) async {
+    // captura documento com base no id e cria um objeto LatLong
+    DocumentSnapshot local = await _locais.doc(idLocal).get();
+    LatLng latLng = LatLng(local.get('latitude'), local.get('longitude'));
+    // posiciona a câmera e movimenta para a posição
+    _posicaoCamera = CameraPosition(target: latLng, zoom: 17);
+    _movimentarCamera();
   }
 
   @override
@@ -128,43 +223,23 @@ class MapScreenState extends State<MapScreen> {
         },
         markers: _marcadores,
         myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        compassEnabled: true,
         onLongPress: _addMarcador,
       ),
     );
   }
 
-  // método para mostrar o local gravado no Firestore
-  mostrarLocal(String? idLocal) async {
-    // captura documento com base no id
-    DocumentSnapshot local = await _locais.doc(idLocal).get();
-    // captura a rua e numero
-    String rua = local.get('rua');
-    String numero = local.get('numero');
-    // cria um objeto LatLong com base na lat e long
-    LatLng latLng = LatLng(local.get('latitude'), local.get('longitude'));
-    // cria um marcador
-    setState(() {
-      Marker marcador = Marker(
-        markerId: MarkerId('marcador=${latLng.latitude}-${latLng.longitude}'),
-        position: latLng,
-        infoWindow: InfoWindow(title: '${rua}, ${numero}'),
-      );
-      // adiciona a lista de marcadores
-      _marcadores.add(marcador);
-      // posiciona a câmera
-      _posicaoCamera = CameraPosition(target: latLng, zoom: 50);
-      // movimenta a câmera para a posição
-      _movimentarCamera();
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    // caso tenha identificação de local, chama o local, senão pega a localização atual
+    // carrega os marcadores e a localização atual
+    carregarMarcadores();
+    // caso tenha identificação de local, mostra ele,
     if (widget.idLocal != null) {
       mostrarLocal(widget.idLocal);
     } else {
+      // senao, mostra a localização atual
       getLocation();
     }
   }
