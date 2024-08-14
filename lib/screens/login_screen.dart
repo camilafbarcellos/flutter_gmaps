@@ -4,7 +4,7 @@ import 'package:flutter_gmaps/screens/auth_screen.dart';
 import '/components/my_button.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
-import '/services/auth_service.dart';
+import '/services/google_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
@@ -38,14 +38,14 @@ class LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       print('Usuário ${userCredential.user!.email} logado!');
-      //pop the loading circle
-      // Navigator.pop(context);
+
       // go to home screen
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => AuthScreen()));
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
+
       // show errors messsages
       if (e.code == 'invalid-credential') {
         genericErrorMessage('Credenciais inválidas, tente novamente!');
@@ -152,7 +152,7 @@ class LoginScreenState extends State<LoginScreen> {
                   children: [
                     //google buttom
                     SquareTile(
-                      onTap: () => AuthService().signInWithGoogle(),
+                      onTap: () => GoogleAuthService().signInWithGoogle(),
                       imagePath: 'lib/icons/google.svg',
                       height: 70,
                     )
