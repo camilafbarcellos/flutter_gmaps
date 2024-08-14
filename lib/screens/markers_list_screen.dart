@@ -46,6 +46,12 @@ class MarkersListScreenState extends State<MarkersListScreen> {
         ),
         centerTitle: true,
         backgroundColor: Color(0xff1A3668),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundImage: NetworkImage(_user.photoURL!),
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: () {
