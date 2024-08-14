@@ -63,13 +63,13 @@ class MapScreenState extends State<MapScreen> {
     // Adiciona um marcador na localização atual
     Marker currentLocationMarker = Marker(
       markerId: MarkerId('currentLocation'),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       position: currentLatLng,
       onTap: () => {
         // zoom na localização atual
         _posicaoCamera = CameraPosition(target: currentLatLng, zoom: 17),
         _movimentarCamera()
       },
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       infoWindow: InfoWindow(
         title: 'Sua localização atual',
         snippet: '${currentAddress.addressDetails.road} ' +
@@ -94,19 +94,21 @@ class MapScreenState extends State<MapScreen> {
     String bairro = address.addressDetails.neighbourhood;
     String cidade = address.addressDetails.city;
     String estado = address.addressDetails.state;
+    String pais = address.addressDetails.country;
     String cep = address.addressDetails.postcode;
 
-    // info do corretor
+    // infos do corretor
     String? corretor = _user.displayName;
+    String? corretorId = _user.uid;
 
     // criar marcador
     Marker marcador = Marker(
       markerId: MarkerId("marcador-${latLng.latitude}=${latLng.longitude}"),
       position: latLng,
       infoWindow: InfoWindow(
-        title: '$rua, $numero',
-        snippet: '$bairro, $cidade - $estado, $cep' +
-            '\nPrezado $corretor, acesse a lista para editar o seu marcador!',
+        title: '$rua, $bairro, $cidade - $estado, $cep',
+        snippet:
+            'Prezado (a) $corretor, acesse a lista para editar o seu marcador!',
       ),
     );
     setState(() {
@@ -115,12 +117,14 @@ class MapScreenState extends State<MapScreen> {
 
     // gravar no Firestore
     Map<String, dynamic> local = Map();
-    local['corretor'] = _user.displayName;
+    local['corretor'] = corretor;
+    local['corretorId'] = corretorId;
     local['rua'] = rua;
     local['numero'] = numero;
     local['bairro'] = bairro;
     local['cidade'] = cidade;
     local['estado'] = estado;
+    local['pais'] = pais;
     local['cep'] = cep;
     local['observacao'] = '';
     local['predio'] = '';
