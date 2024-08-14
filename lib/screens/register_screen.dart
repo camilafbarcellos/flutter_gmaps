@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gmaps/screens/auth_screen.dart';
 import '/components/my_button.dart';
 import '/components/my_textfield.dart';
 import '/components/square_tile.dart';
-import '../services/auth_service.dart';
+import '../services/google_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   final Function()? onTap;
@@ -19,6 +20,7 @@ class RegisterScreen extends StatefulWidget {
 class RegisterScreenState extends State<RegisterScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -43,20 +45,33 @@ class RegisterScreenState extends State<RegisterScreen> {
           password: _passwordController.text,
         );
         print('Usuário ${userCredential.user!.email} registrado!');
-        // pop the loading circle
-        Navigator.pop(context);
+
+        // save to users collection
+        final CollectionReference _users =
+            FirebaseFirestore.instance.collection('users');
+        await _users.add({
+          'uid': userCredential.user!.uid,
+          'displayName': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'photoURL':
+              'https://ui-avatars.com/api/?name=${_nameController.text}&background=E01C2F&color=fff'
+        });
+
         // go to home screen
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => AuthScreen()));
       } else {
         // pop the loading circle
-        // Navigator.pop(context);
+        Navigator.pop(context);
+
         // show error password don't match
         genericErrorMessage("As senhas não correspondem!");
       }
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
+
       // show errors messsages
       if (e.code == 'weak-password') {
         genericErrorMessage('A senha é muito fraca, tente novamente!');
@@ -102,6 +117,14 @@ class RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 25),
+
+                MyTextField(
+                  controller: _nameController,
+                  hintText: 'Nome completo',
+                  icon: Icon(Icons.person_outline),
+                  obscureText: false,
+                ),
+                const SizedBox(height: 15),
 
                 MyTextField(
                   controller: _emailController,
@@ -168,7 +191,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SquareTile(
-                      onTap: () => AuthService().signInWithGoogle(),
+                      onTap: () => GoogleAuthService().signInWithGoogle(),
                       imagePath: 'lib/icons/google.svg',
                       height: 70,
                     ),
