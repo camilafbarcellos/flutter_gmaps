@@ -296,7 +296,19 @@ class MarkersListScreenState extends State<MarkersListScreen> {
   }
 
   editFormPopup(BuildContext context, String idLocal) async {
+    // captura o local pelo id
     DocumentSnapshot document = await _locais.doc(idLocal).get();
+    final String corretorId = document['corretorId'];
+
+    // permite apenas o corretor dono do local
+    if (corretorId != _user.uid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Você não tem permissão para editar este local!')),
+      );
+      return;
+    }
+
     final _formKey = GlobalKey<FormState>();
     final TextEditingController _controladorNumero =
         TextEditingController(text: document['numero']);
@@ -402,7 +414,20 @@ class MarkersListScreenState extends State<MarkersListScreen> {
     );
   }
 
-  confirmationAlert(BuildContext context, String idLocal) {
+  confirmationAlert(BuildContext context, String idLocal) async {
+    // captura o local pelo id
+    DocumentSnapshot document = await _locais.doc(idLocal).get();
+    final String corretorId = document['corretorId'];
+
+    // permite apenas o corretor dono do local
+    if (corretorId != _user.uid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Você não tem permissão para excluir este local!')),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
