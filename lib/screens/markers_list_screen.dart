@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_gmaps/services/user_service.dart';
 import '/screens/auth_screen.dart';
 import '/screens/map_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class MarkersListScreen extends StatefulWidget {
 
 class MarkersListScreenState extends State<MarkersListScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final _user = FirebaseAuth.instance.currentUser!;
+  final _user = UserService().getUser();
   final CollectionReference _locais =
       FirebaseFirestore.instance.collection('locais');
   String? _filtroCorretor;
@@ -39,8 +40,11 @@ class MarkersListScreenState extends State<MarkersListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Seus locais'),
-        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        title: Image.asset(
+          'lib/logos/remax-white.png',
+          width: 150,
+        ),
+        centerTitle: true,
         backgroundColor: Color(0xff1A3668),
         actions: [
           IconButton(

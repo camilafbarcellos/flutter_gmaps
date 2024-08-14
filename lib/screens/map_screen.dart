@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gmaps/services/user_service.dart';
 import '/screens/auth_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -17,7 +18,7 @@ class MapScreen extends StatefulWidget {
 
 class MapScreenState extends State<MapScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final _user = FirebaseAuth.instance.currentUser!;
+  final _user = UserService().getUser();
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -204,6 +205,11 @@ class MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Image.asset(
+          'lib/logos/googlemaps-white.png',
+          width: 175,
+        ),
+        centerTitle: true,
         backgroundColor: Color(0xff1A3668),
         iconTheme: IconThemeData(color: Colors.white),
         actions: [
