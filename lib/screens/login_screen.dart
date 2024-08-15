@@ -38,7 +38,8 @@ class LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       print('Usuário ${userCredential.user!.email} logado!');
-
+      // pop the loading circle
+      Navigator.pop(context);
       // go to home screen
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => AuthScreen()));

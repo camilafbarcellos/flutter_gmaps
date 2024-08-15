@@ -53,11 +53,12 @@ class RegisterScreenState extends State<RegisterScreen> {
           'uid': userCredential.user!.uid,
           'displayName': _nameController.text.trim(),
           'email': _emailController.text.trim(),
-          'password': _passwordController.text,
           'photoURL':
               'https://ui-avatars.com/api/?name=${_nameController.text}&background=E01C2F&color=fff'
         });
 
+        // pop the loading circle
+        Navigator.pop(context);
         // go to home screen
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => AuthScreen()));
