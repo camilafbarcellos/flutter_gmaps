@@ -5,6 +5,7 @@ class MyTextField extends StatefulWidget {
   final String hintText;
   final icon;
   final bool obscureText;
+  final bool capitalization;
 
   const MyTextField({
     super.key,
@@ -12,6 +13,7 @@ class MyTextField extends StatefulWidget {
     required this.hintText,
     required this.icon,
     required this.obscureText,
+    required this.capitalization,
   });
 
   @override
@@ -39,6 +41,9 @@ class MyTextFieldState extends State<MyTextField> {
               widget.controller.text = value;
             });
           },
+          textCapitalization: widget.capitalization
+              ? TextCapitalization.words
+              : TextCapitalization.none,
           controller: widget.controller,
           obscureText: widget.obscureText,
           decoration: InputDecoration(

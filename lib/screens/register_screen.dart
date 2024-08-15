@@ -123,6 +123,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   hintText: 'Nome completo',
                   icon: Icon(Icons.person_outline),
                   obscureText: false,
+                  capitalization: true,
                 ),
                 const SizedBox(height: 15),
 
@@ -131,6 +132,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   hintText: 'Email',
                   icon: Icon(Icons.email_outlined),
                   obscureText: false,
+                  capitalization: false,
                 ),
                 const SizedBox(height: 15),
 
@@ -139,6 +141,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   hintText: 'Senha',
                   icon: Icon(Icons.lock_outline),
                   obscureText: true,
+                  capitalization: false,
                 ),
                 const SizedBox(height: 15),
 
@@ -147,6 +150,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   hintText: 'Confirmar senha',
                   icon: Icon(Icons.shield_outlined),
                   obscureText: true,
+                  capitalization: false,
                 ),
                 const SizedBox(height: 15),
 

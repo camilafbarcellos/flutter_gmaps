@@ -99,6 +99,7 @@ class LoginScreenState extends State<LoginScreen> {
                   hintText: 'Email',
                   icon: Icon(Icons.email_outlined),
                   obscureText: false,
+                  capitalization: false,
                 ),
                 const SizedBox(height: 15),
 
@@ -107,6 +108,7 @@ class LoginScreenState extends State<LoginScreen> {
                   hintText: 'Senha',
                   icon: Icon(Icons.lock_outline),
                   obscureText: true,
+                  capitalization: false,
                 ),
                 const SizedBox(height: 15),
 
