@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gmaps/services/user_service.dart';
+import '/models/user.dart';
+import '/services/user_service.dart';
 import '/screens/auth_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,7 +19,9 @@ class MapScreen extends StatefulWidget {
 
 class MapScreenState extends State<MapScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final _user = UserService().getUser();
+  final _user = FirebaseAuth.instance.currentUser!;
+  // late UserModel? _user;
+  // bool _isLoading = true;
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -99,7 +102,7 @@ class MapScreenState extends State<MapScreen> {
     String cep = address.addressDetails.postcode;
 
     // infos do corretor
-    String? corretor = _user.displayName;
+    String? corretor = _user.displayName ?? _user.email;
     String? corretorId = _user.uid;
 
     // criar marcador
@@ -203,6 +206,14 @@ class MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // if (_isLoading) {
+    //   return const Scaffold(
+    //     body: Center(
+    //       child: CircularProgressIndicator(),
+    //     ),
+    //   );
+    // }
+
     return Scaffold(
       appBar: AppBar(
         title: Image.asset(
@@ -243,6 +254,7 @@ class MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    // initializeUser();
     // carrega os marcadores e a localização atual
     carregarMarcadores();
     // caso tenha identificação de local, mostra ele,
@@ -253,4 +265,12 @@ class MapScreenState extends State<MapScreen> {
       getLocation();
     }
   }
+
+  // void initializeUser() async {
+  //   final user = await UserService().getUser();
+  //   setState(() {
+  //     _user = user;
+  //     _isLoading = false;
+  //   });
+  // }
 }

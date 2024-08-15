@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_gmaps/services/user_service.dart';
+import '/models/user.dart';
+import '/services/user_service.dart';
 import '/screens/auth_screen.dart';
 import '/screens/map_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,33 @@ class MarkersListScreen extends StatefulWidget {
 
 class MarkersListScreenState extends State<MarkersListScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final _user = UserService().getUser();
+  final _user = FirebaseAuth.instance.currentUser!;
+  // late UserModel? _user;
+  // bool _isLoading = true;
+
+  // coleção de locais com marcadores
   final CollectionReference _locais =
       FirebaseFirestore.instance.collection('locais');
+
+  // filtros para os locais
   String? _filtroCorretor;
   String? _filtroPredio;
   String? _filtroBairro;
   String? _filtroCidade;
+
+  @override
+  void initState() {
+    super.initState();
+    // initializeUser();
+  }
+
+  // void initializeUser() async {
+  //   final user = await UserService().getUser();
+  //   setState(() {
+  //     _user = user;
+  //     _isLoading = false;
+  //   });
+  // }
 
   _abrirMapa(String idLocal) {
     Navigator.push(context,
@@ -38,6 +59,14 @@ class MarkersListScreenState extends State<MarkersListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // if (_isLoading) {
+    //   return const Scaffold(
+    //     body: Center(
+    //       child: CircularProgressIndicator(),
+    //     ),
+    //   );
+    // }
+
     return Scaffold(
       appBar: AppBar(
         title: Image.asset(
@@ -49,14 +78,17 @@ class MarkersListScreenState extends State<MarkersListScreen> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundImage: NetworkImage(_user.photoURL!),
+            backgroundImage: _user.photoURL != null
+                ? NetworkImage(_user.photoURL!)
+                : NetworkImage(
+                    'https://ui-avatars.com/api/?name=${_user.email}&background=E01C2F&color=fff'),
           ),
         ),
         actions: [
           IconButton(
             onPressed: () {
               _auth.signOut();
-              print('Usuário ${_user.email} deslogado!');
+              print('Usuário ${_user!.email} deslogado!');
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => AuthScreen()));
             },
@@ -311,7 +343,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
     final String corretorId = document['corretorId'];
 
     // permite apenas o corretor dono do local
-    if (corretorId != _user.uid) {
+    if (corretorId != _user!.uid) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Você não tem permissão para editar este local!')),
@@ -430,7 +462,7 @@ class MarkersListScreenState extends State<MarkersListScreen> {
     final String corretorId = document['corretorId'];
 
     // permite apenas o corretor dono do local
-    if (corretorId != _user.uid) {
+    if (corretorId != _user!.uid) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Você não tem permissão para excluir este local!')),
