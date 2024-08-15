@@ -46,6 +46,9 @@ class RegisterScreenState extends State<RegisterScreen> {
         );
         print('Usuário ${userCredential.user!.email} registrado!');
 
+        // pop the loading circle
+        Navigator.pop(context);
+
         // save to users collection
         final CollectionReference _users =
             FirebaseFirestore.instance.collection('users');
@@ -56,9 +59,6 @@ class RegisterScreenState extends State<RegisterScreen> {
           'photoURL':
               'https://ui-avatars.com/api/?name=${_nameController.text}&background=E01C2F&color=fff'
         });
-
-        // pop the loading circle
-        Navigator.pop(context);
         // go to home screen
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => AuthScreen()));
