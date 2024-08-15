@@ -41,7 +41,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       if (_passwordController.text == _confirmPasswordController.text) {
         UserCredential userCredential =
             await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text,
+          email: _emailController.text.trim(),
           password: _passwordController.text,
         );
         print('Usuário ${userCredential.user!.email} registrado!');
@@ -49,10 +49,10 @@ class RegisterScreenState extends State<RegisterScreen> {
         // save to users collection
         final CollectionReference _users =
             FirebaseFirestore.instance.collection('users');
-        await _users.add({
+        await _users.doc(userCredential.user!.uid).set({
           'uid': userCredential.user!.uid,
-          'displayName': _nameController.text,
-          'email': _emailController.text,
+          'displayName': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
           'password': _passwordController.text,
           'photoURL':
               'https://ui-avatars.com/api/?name=${_nameController.text}&background=E01C2F&color=fff'

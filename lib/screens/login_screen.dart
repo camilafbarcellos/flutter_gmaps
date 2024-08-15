@@ -34,7 +34,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
+        email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       print('Usuário ${userCredential.user!.email} logado!');
